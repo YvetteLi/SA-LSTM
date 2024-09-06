@@ -1,53 +1,102 @@
-# NELEC Implementation Report
+# NELEC Model for Contextual Emotion Detection in Text
 
 ## Overview
 
-This report details the implementation process and evaluation of the **National Energy Literacy and Education Campaign (NELEC)**. The campaign aims to improve public understanding of energy-related topics and foster informed decision-making around energy use and policies. The document outlines the strategies employed, the key steps taken during the implementation phase, and the outcomes achieved. The implementation addresses energy literacy at various levels, leveraging multiple media and outreach methods to maximize public engagement.
+This repository contains the implementation of the **NELEC (Contextual Emotion Detection)** model for predicting emotions in textual data. The model leverages neural embeddings from GloVe and Emoji2Vec to handle text and emoji inputs, respectively. This project was developed as part of the third task in the SemEval-2019 competition, focusing on **'Contextual Emotion Detection in Text.'**
+
+The architecture of the model includes **LSTM** (Long Short-Term Memory), **GRU** (Gated Recurrent Unit), and attention layers. It uses a combination of max-pooling and average-pooling to regulate the model, enhancing its performance. The implementation achieves an F1 score of **68%** on the task.
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Objectives](#objectives)
-- [Key Strategies](#key-strategies)
-- [Implementation Phases](#implementation-phases)
-- [Evaluation Metrics](#evaluation-metrics)
+- [Dataset](#dataset)
+- [Preprocessing](#preprocessing)
+- [Model Architecture](#model-architecture)
+- [Training and Results](#training-and-results)
+- [Requirements](#requirements)
+- [Usage](#usage)
 - [Conclusion](#conclusion)
 - [References](#references)
 
-## Objectives
+## Dataset
 
-The main objectives of the NELEC initiative are:
-- **Enhance public awareness** of energy systems and their environmental, economic, and social impacts.
-- **Educate citizens** on energy conservation practices and the importance of sustainable energy use.
-- **Foster engagement** with energy policies to support decision-making based on reliable, accessible information.
+The dataset for the **NELEC model** is provided by Microsoft as part of the **EmoContext** task. It contains labeled conversations, including both text and emoji data. Each conversation is classified into one of four categories:
+- **Happy**
+- **Sad**
+- **Angry**
+- **Others**
 
-## Key Strategies
+The dataset is split into training, testing, and development sets, each with a distribution of these emotion labels. A table in the report outlines the global statistics of the dataset, including train, test, and dev data proportions.
 
-To achieve these objectives, the following strategies were implemented:
-1. **Educational Outreach**: Organizing seminars, workshops, and school programs to reach diverse audiences, from students to professionals.
-2. **Media Campaign**: A comprehensive media strategy was developed to distribute educational content through TV, radio, social media, and online platforms.
-3. **Partnerships**: Collaborating with educational institutions, government bodies, and energy companies to expand outreach and provide credibility.
-4. **Interactive Tools**: Development of online interactive tools and mobile applications for users to engage with energy-saving tips and real-time energy consumption data.
+## Preprocessing
 
-## Implementation Phases
+### 1. **Text Cleaning:**
+   - Conversations are cleaned using regular expressions to revert abbreviations and typographical errors to their full forms.
+   - Lamentation and normalization steps, such as the removal of stop words and punctuation, are skipped based on previous research findings.
 
-The implementation of NELEC was divided into the following phases:
-1. **Planning Phase**: Identifying key focus areas, target audiences, and resources required for successful implementation.
-2. **Execution Phase**: Launching the media campaigns, workshops, and educational programs.
-3. **Evaluation Phase**: Gathering data and feedback from participants to assess the campaign’s effectiveness and areas for improvement.
+### 2. **Embeddings:**
+   - **GloVe (Global Vectors for Word Representation):** Pre-trained embeddings are used for words, providing a 300-dimensional vector for each word.
+   - **Emoji2Vec:** Emojis are represented using the Emoji2Vec embeddings, which are trained to capture the meanings of emojis in a similar manner as words.
 
-## Evaluation Metrics
+## Model Architecture
 
-Key metrics used to evaluate the success of the NELEC campaign include:
-- **Reach and Engagement**: Number of people reached through various channels and their level of engagement with the content.
-- **Knowledge Improvement**: Pre- and post-campaign surveys measuring the increase in energy literacy among participants.
-- **Behavioral Changes**: Assessing changes in energy consumption practices among individuals exposed to the campaign.
-- **Policy Influence**: Monitoring any shifts in public opinion or government policies influenced by the campaign’s educational efforts.
+The model uses a combination of:
+- **LSTM (Long Short-Term Memory)** layers for capturing long-term dependencies in the input sequences.
+- **GRU (Gated Recurrent Unit)** layers to handle sequential data with fewer parameters compared to LSTM.
+- **Attention Mechanism:** A simplified version of Bahdanau's attention is employed to improve focus on important tokens in the input.
+- **Pooling Layers:** Max-pooling and average-pooling layers are used to regulate the output of the LSTM and GRU layers.
+
+A detailed diagram of the model architecture is provided in the report, explaining the flow of data through the embedding, LSTM/GRU, and pooling layers.
+
+## Training and Results
+
+### 1. **Training Procedure:**
+   - The model is trained on a dataset of 24,128 conversations using **Pytorch** with 300-dimensional GloVe embeddings and a sequence length of 35 tokens.
+   - The model is trained for 100 epochs using a cyclic learning rate.
+
+### 2. **Evaluation:**
+   - Precision, Recall, and F1-scores are calculated for each class (Happy, Sad, Angry, Others) and are compared between the original Keras model, a retrained Keras model, and the implemented Pytorch model.
+
+### 3. **Results:**
+   - The final model achieves an F1-score of **68%**.
+   - Detailed class-wise performance (Happy, Sad, Angry, Others) and macro/micro average scores are provided.
+
+## Requirements
+
+- **Python 3.7+**
+- **Pytorch**
+- **Keras (for comparison)**
+- **Numpy**
+- **Pandas**
+- **GloVe embeddings** (downloaded separately)
+- **Emoji2Vec embeddings**
+
+## Usage
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/nelec-emotion-detection.git
+   cd nelec-emotion-detection
+   ```
+
+2. Install the necessary dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Download the GloVe and Emoji2Vec embeddings and place them in the appropriate directories.
+
+4. Run the training script:
+   ```bash
+   python train.py --epochs 100 --embedding glove --data_path ./data/
+   ```
 
 ## Conclusion
 
-The NELEC campaign successfully increased public awareness of energy issues, educated citizens on conservation practices, and positively influenced both individual behavior and policy discussions. The report highlights the key successes and offers recommendations for future campaigns.
+The NELEC model demonstrates strong performance in detecting emotions from contextual conversations, using both word and emoji embeddings. The incorporation of LSTM, GRU, and attention mechanisms allows the model to capture important long-term dependencies in the text. The project explores possible improvements in handling the "Others" class, where class imbalance is an issue.
 
 ## References
 
-A list of the sources and references used in the report, including government publications, research papers, and media sources, can be found in the full document.
+- Agrawal, Suri (2019). "Contextual Emotion Detection in Text." SemEval-2019 Task.
+- Pennington, Socher, Manning (2014). "GloVe: Global Vectors for Word Representation."
+- Raffel, Ellis (2016). "Feed-forward Attention Models."
